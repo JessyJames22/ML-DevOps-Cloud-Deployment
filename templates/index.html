@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Segmentation</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Customer Segmentation Prediction</h1>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Input Form -->
+        <form method="POST" class="mt-4">
+            <div class="form-group">
+                <label for="total_spend">Total Spend (in dollars):</label>
+                <input type="number" step="0.01" class="form-control" id="total_spend" name="total_spend" required>
+            </div>
+            <div class="form-group">
+                <label for="frequency">Purchase Frequency:</label>
+                <input type="number" step="0.01" class="form-control" id="frequency" name="frequency" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Predict Segment</button>
+        </form>
+
+        <!-- Predicted Segment Display -->
+        {% if segment %}
+            <h3 class="mt-4">Predicted Segment: {{ segment }}</h3>
+        {% endif %}
+
+        <!-- Chart for Segment Distribution -->
+        <div class="mt-4">
+            <canvas id="segmentChart" style="max-width: 600px; height: 400px;"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('segmentChart').getContext('2d');
+        const segmentDistribution = {{ segment_distribution }};
+        const labels = {{ segment_labels | tojson }};
+
+        const segmentChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Customer Segmentation Distribution',
+                    data: segmentDistribution,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                    borderColor: ['rgba(255, 255, 255, 0.8)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribution of Customer Segments'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
